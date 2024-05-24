@@ -1,17 +1,19 @@
-
 import { Navigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import useAdmin from "../hooks/useAdmin";
 
-const PrivateRoutes = ({children}) => {
+const AdminRoutes = ({children}) => {
+    const [isAdmin,isAdminLoading] = useAdmin()
     const {user,loading} = useAuth()
     const location = useLocation()
-    if(loading){
+    if(loading || isAdminLoading){
         return <span className="loading loading-dots loading-md"></span>
     }
-    if(user){
+    if(user && isAdmin){
         return children
     }
     return <Navigate to={'/login'} state={{form:location.pathname}} replace></Navigate>
+    
 };
 
-export default PrivateRoutes;
+export default AdminRoutes;

@@ -4,11 +4,14 @@ import { AuthContext } from "../../provider/AuthProvider";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Swal from "sweetalert2";
+import useAxiosCommon from "../../hooks/useAxiosCommon";
+import SocialLogin from "../Sherd/SocialLogin/SocialLogin";
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors }, } = useForm()
     const {createUser,updateUserProfile} = useContext(AuthContext)
     const navigate = useNavigate()
+    const AxiosCommon = useAxiosCommon()
 
     const onSubmit = (data) => {
         createUser(data.email,data.password)
@@ -16,14 +19,26 @@ const Register = () => {
             updateUserProfile(data.name,data.photoUrl)
             .then(result=>{
                 console.log(result)
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "create account successfully",
-                    showConfirmButton: false,
-                    timer: 1500
-                  });
-                  navigate('/')
+                const userInfo = {
+                    name:data.name,
+                    email:data.email
+                }
+                AxiosCommon.post('/users',userInfo)
+                .then(res=>{
+                    if(res.data.insertedId){
+                        console.log('user is add in database')
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "create account successfully",
+                            showConfirmButton: false,
+                            timer: 1500
+                          });
+                          navigate('/')
+                    }
+                })
+
+                
             })
             .catch(err=>console.log(err))
             console.log(res.user)
@@ -80,11 +95,12 @@ const Register = () => {
                         </div>
                         <div className="form-control mt-6">
                             <input className="btn btn-primary" type="submit" value="Sign Up" />
-                            <Link to={'/login'}>have to account sign in</Link>
                             
                             
                         </div>
                     </form>
+                    <p className="px-6 py-2"><Link  to={'/login'}>have to account sign in</Link></p>
+                    <SocialLogin/>
                     
                 </div>
             </div>
